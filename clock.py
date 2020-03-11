@@ -13,7 +13,7 @@ bot_configuration = BotConfiguration(
 viber = Api(bot_configuration)
 
 # словарь соответствий пользователя и времени последнего напоминания
-user_reminder = {}
+users_reminders = {}
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
@@ -26,9 +26,9 @@ def timed_job():
     users = session.query(User)
     for u in users:
         if datetime.datetime.utcnow() - u.last_answer_time > datetime.timedelta(minutes=5):
-            if ((u not in user_reminder) or (
-                    datetime.datetime.utcnow() - user_reminder[u] > datetime.timedelta(minutes=3))):
-                user_reminder[u] = datetime.datetime.utcnow()
+            if ((u not in users_reminders) or (
+                    datetime.datetime.utcnow() - users_reminders[u] > datetime.timedelta(minutes=3))):
+                users_reminders[u] = datetime.datetime.utcnow()
                 viber.send_messages(u.viber_id, [TextMessage(text="Время повторить слова", keyboard=START_KEYBOARD,
                                                              tracking_data='tracking_data')])
 
