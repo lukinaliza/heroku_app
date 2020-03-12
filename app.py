@@ -24,7 +24,7 @@ bot_configuration = BotConfiguration(
 viber = Api(bot_configuration)
 app = Flask(__name__)
 
-engine = create_engine('postgres://pppagvykfezlcl:edc2db5e238932b84b210297cec1f538387dd267b60dd547cddb754dbb6217b0@ec2-54-246-90-10.eu-west-1.compute.amazonaws.com:5432/d16gk8qkmbcg42?check_same_thread=False', echo = False)
+engine = create_engine('postgres://pppagvykfezlcl:edc2db5e238932b84b210297cec1f538387dd267b60dd547cddb754dbb6217b0@ec2-54-246-90-10.eu-west-1.compute.amazonaws.com:5432/d16gk8qkmbcg42', echo = False)
 Base = declarative_base()
 
 class Word(Base):
