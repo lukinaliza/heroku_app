@@ -3,3 +3,4 @@ viberbot
 APScheduler==3.0.0
 sqlalchemy
 gunicorn
+psycopg2
