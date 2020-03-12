@@ -84,7 +84,7 @@ def initWords():
             new_word = Word(word=word['word'], translation=word['translation'], examples = "".join(word['examples']))
             session.add(new_word)
     session.commit()
-    session.close()
+    session.remove()
 
 
 def get_four_words_for_user(user_id):
@@ -97,7 +97,7 @@ def get_four_words_for_user(user_id):
         check = session.query(Learning).filter(Learning.user_id == user_id).filter(Learning.word == word.id).first()
         if ((check == None or check.right_answers < 20) and word not in list):
             list.append(word)
-    session.close()
+    session.remove()
     return list
 
 def makeQuestion(viber_request_sender_id, portion_words):
@@ -119,7 +119,7 @@ def makeQuestion(viber_request_sender_id, portion_words):
     viber.send_messages(viber_request_sender_id, [
         TextMessage(text=whichWordMessage), messageKeyboard
     ])
-    session.close()
+    session.remove()
 
 def getStat(viber_id):
     session = Session()
@@ -130,13 +130,13 @@ def getStat(viber_id):
     statistics += "Количество выученных слов: " + str(wds_learnt) + "\n"
     statistics += "Количество слов на изучении: " + str(words_learning) + "\n"
     statistics += "Последнее посещение: " + str(user.last_answer_time).replace('-', '.')[:19]
-    session.close()
+    session.remove()
     return statistics
 
 def showExample(viber_id):
     session = Session()
     val = (session.query(Word).join(User).filter(User.viber_id == viber_id)).first().examples
-    session.close()
+    session.remove()
     return val
 
 def checkAnswer(viber_id, text):
@@ -166,7 +166,7 @@ def checkAnswer(viber_id, text):
     # обновление последнего времени ответа
     user.last_answer_time = datetime.datetime.utcnow()
     session.commit()
-    session.close()
+    session.remove()
 
 def checkEndSession(viber_id):
     session = Session()
@@ -179,7 +179,7 @@ def checkEndSession(viber_id):
         user.questionCount_session = 0
         session.commit()
         return True
-    session.close()
+    session.remove()
     return False
 
 
