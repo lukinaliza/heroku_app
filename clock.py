@@ -2,7 +2,7 @@ from settings import TOKEN
 from viberbot import Api
 from viberbot.api.bot_configuration import BotConfiguration
 from viberbot.api.messages import TextMessage
-from lab6 import START_KEYBOARD, Session, User
+from app import START_KEYBOARD, Session, User
 import datetime
 
 bot_configuration = BotConfiguration(
