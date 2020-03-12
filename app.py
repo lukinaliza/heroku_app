@@ -72,6 +72,8 @@ class Learning(Base):
 Base.metadata.create_all(engine)
 Session = sessionmaker(engine)
 
+init = False
+
 def initWords():
     session = Session()
     query = session.query(Word)
@@ -83,7 +85,10 @@ def initWords():
             session.add(new_word)
     session.commit()
 
-# initWords()
+
+if (init == False):
+    initWords()
+    init = True
 
 def get_four_words_for_user(user_id):
     session = Session()
@@ -197,7 +202,6 @@ def incoming():
             user_0 = User(full_name=viber_request.user.name, viber_id=viber_request.user.id)
             session.add(user_0)
             session.commit()
-            session.close()
         viber.send_messages(viber_request.user.id, [
             TextMessage(text=HELLO_MESSAGE, keyboard=START_KEYBOARD, tracking_data='tracking_data')
         ])
@@ -206,7 +210,6 @@ def incoming():
         message = viber_request.message
         session = Session()
         user = session.query(User).filter(User.viber_id == viber_request.sender.id).first()
-        session.close()
         # print(user)
         if isinstance(message, TextMessage):
             text = message.text
