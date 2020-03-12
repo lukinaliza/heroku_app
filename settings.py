@@ -34,7 +34,7 @@ START_KEYBOARD = {
     ]
 }
 
-START_KEYBOARD = {
+WAIT_KEYBOARD = {
 "Type": "keyboard",
 "Buttons": [
 	{
@@ -48,10 +48,22 @@ START_KEYBOARD = {
 	"ActionBody": "Start",
 	"ReplyType": "message",
 	"Text": "Давай начнём!"
-	}    ]
+	},
+    {"Columns": 6,
+    "Rows": 1,
+    "BgColor": "#e6f5ff",
+    "BgMedia": "http://link.to.button.image",
+    "BgMediaType": "picture",
+    "BgLoop": True,
+    "ActionType": "reply",
+    "ActionBody": "Dismiss",
+    "ReplyType": "message",
+    "Text": "Чуть позже"
+    }
+    ]
 }
 
-WAIT_KEYBOARD = {
+SAMPLE_KEYBOARD = {
 "Type": "keyboard",
 "Buttons": [
 	{
