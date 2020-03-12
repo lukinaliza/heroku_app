@@ -184,6 +184,7 @@ portion_words = []
 first = True
 init = False
 SESSION_WORDS = 10
+TIME_INTERVAL = 2
 @app.route('/incoming', methods = ['POST'])
 def incoming():
     Base.metadata.create_all(engine)
@@ -219,7 +220,7 @@ def incoming():
             if text == "Start":
                 nextAnswer = True
                 stat = getStat(viber_request.sender.id)
-                user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
                 session.commit()
                 viber.send_messages(viber_request.sender.id, [TextMessage(text=stat)])
                 portion_words = get_four_words_for_user(user.id)
