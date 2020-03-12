@@ -24,7 +24,7 @@ bot_configuration = BotConfiguration(
 viber = Api(bot_configuration)
 app = Flask(__name__)
 
-engine = create_engine('postgres://vhzsphulnbeaiy:04ef3f3308f5a03b63e1df06f25cb068adde8a0827f44c1da3aee8028ea6145e@ec2-54-247-169-129.eu-west-1.compute.amazonaws.com:5432/d5nh6nuei75i9d', echo = False)
+engine = create_engine('postgres://brfakkbdjwxrmj:21a01cf8274bcda5a8a71e13df236f11c03a3b79bab037633975e5f60de133c0@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/d81st56c4nudcs', echo = False)
 Base = declarative_base()
 
 class Word(Base):
@@ -70,10 +70,8 @@ class Learning(Base):
     def __repr__(self):
         return f'{self.id}: {self.user_id} [{self.word} / {self.right_answers}] {self.last_time_answer_word}'
 
-Base.metadata.create_all(engine)
 Session = sessionmaker(engine)
 
-init = False
 
 def initWords():
     session = Session()
@@ -86,10 +84,6 @@ def initWords():
             session.add(new_word)
     session.commit()
 
-
-if (init == False):
-    initWords()
-    init = True
 
 def get_four_words_for_user(user_id):
     session = Session()
@@ -188,8 +182,14 @@ def hello():
 
 portion_words = []
 first = True
+init = False
 @app.route('/incoming', methods = ['POST'])
 def incoming():
+    Base.metadata.create_all(engine)
+    global init
+    if (init == False):
+        initWords()
+        init = True
     nextAnswer=False
     global portion_words
     global user
