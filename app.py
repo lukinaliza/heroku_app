@@ -238,7 +238,7 @@ def incoming():
                 # заполнение клавиатуры
                 makeQuestion(viber_request.sender.id, portion_words)
             elif text == "Dismiss":
-                user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
                 session.commit()
                 viber.send_messages(viber_request.sender.id, [
                     TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"), KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD) ])
