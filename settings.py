@@ -34,7 +34,24 @@ START_KEYBOARD = {
     ]
 }
 
-SAMPLE_KEYBOARD = {
+START_KEYBOARD = {
+"Type": "keyboard",
+"Buttons": [
+	{
+	"Columns": 6,
+	"Rows": 1,
+	"BgColor": "#e6f5ff",
+	"BgMedia": "http://link.to.button.image",
+	"BgMediaType": "picture",
+	"BgLoop": True,
+	"ActionType": "reply",
+	"ActionBody": "Start",
+	"ReplyType": "message",
+	"Text": "Давай начнём!"
+	}    ]
+}
+
+WAIT_KEYBOARD = {
 "Type": "keyboard",
 "Buttons": [
 	{

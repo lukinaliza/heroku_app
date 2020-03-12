@@ -163,8 +163,8 @@ def checkAnswer(viber_id, text):
 def checkEndSession(viber_id):
     session = Session()
     user = session.query(User).filter(User.viber_id == viber_id).first()
-    if user.questionCount_session >= 5:
-        final = TextMessage(text=f"Количество правильных ответов: {user.correct_answers_session} из 10")
+    if user.questionCount_session >= SESSION_WORDS:
+        final = TextMessage(text=f"Количество правильных ответов: {user.correct_answers_session} из {SESSION_WORDS}")
         viber.send_messages(viber_id, [final])
         user.correct_answers_session = 0
         session.commit()
@@ -183,6 +183,7 @@ def hello():
 portion_words = []
 first = True
 init = False
+SESSION_WORDS = 10
 @app.route('/incoming', methods = ['POST'])
 def incoming():
     Base.metadata.create_all(engine)

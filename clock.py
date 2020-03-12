@@ -1,4 +1,5 @@
 from settings import TOKEN
+from settings import WAIT_KEYBOARD
 from viberbot import Api
 from viberbot.api.bot_configuration import BotConfiguration
 from viberbot.api.messages import TextMessage
@@ -26,7 +27,7 @@ def timed_job():
     users = session.query(User)
     for u in users:
         if datetime.datetime.utcnow() >= u.time_reminder:
-            viber.send_messages(u.viber_id, [TextMessage(text="Время повторить слова", keyboard=START_KEYBOARD,
+            viber.send_messages(u.viber_id, [TextMessage(text="Время повторить слова", keyboard=WAIT_KEYBOARD,
                                                          tracking_data='tracking_data')])
 
 
