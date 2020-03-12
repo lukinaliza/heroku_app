@@ -83,6 +83,7 @@ def initWords():
             new_word = Word(word=word['word'], translation=word['translation'], examples = "".join(word['examples']))
             session.add(new_word)
     session.commit()
+    session.close()
 
 
 def get_four_words_for_user(user_id):
@@ -95,6 +96,7 @@ def get_four_words_for_user(user_id):
         check = session.query(Learning).filter(Learning.user_id == user_id).filter(Learning.word == word.id).first()
         if ((check == None or check.right_answers < 20) and word not in list):
             list.append(word)
+    session.close()
     return list
 
 def makeQuestion(viber_request_sender_id, portion_words):
@@ -116,6 +118,7 @@ def makeQuestion(viber_request_sender_id, portion_words):
     viber.send_messages(viber_request_sender_id, [
         TextMessage(text=whichWordMessage), messageKeyboard
     ])
+    session.close()
 
 def getStat(viber_id):
     session = Session()
@@ -126,11 +129,14 @@ def getStat(viber_id):
     statistics += "Количество выученных слов: " + str(wds_learnt) + "\n"
     statistics += "Количество слов на изучении: " + str(words_learning) + "\n"
     statistics += "Последнее посещение: " + str(user.last_answer_time).replace('-', '.')[:19]
+    session.close()
     return statistics
 
 def showExample(viber_id):
     session = Session()
-    return (session.query(Word).join(User).filter(User.viber_id == viber_id)).first().examples
+    val = (session.query(Word).join(User).filter(User.viber_id == viber_id)).first().examples
+    session.close()
+    return val
 
 def checkAnswer(viber_id, text):
     session = Session()
@@ -159,6 +165,7 @@ def checkAnswer(viber_id, text):
     # обновление последнего времени ответа
     user.last_answer_time = datetime.datetime.utcnow()
     session.commit()
+    session.close()
 
 def checkEndSession(viber_id):
     session = Session()
@@ -171,6 +178,7 @@ def checkEndSession(viber_id):
         user.questionCount_session = 0
         session.commit()
         return True
+    session.close()
     return False
 
 
@@ -184,7 +192,7 @@ portion_words = []
 first = True
 init = False
 SESSION_WORDS = 5
-TIME_INTERVAL = 10
+TIME_INTERVAL = 20
 @app.route('/incoming', methods = ['POST'])
 def incoming():
     Base.metadata.create_all(engine)
@@ -260,6 +268,7 @@ def incoming():
                     makeQuestion(viber_request.sender.id, portion_words)
                     first = False
                     nextAnswer = False
+    session.close()
     return Response(status=200)
 
 if __name__ == '__main__':
