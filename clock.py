@@ -25,12 +25,9 @@ def timed_job():
     session = Session()
     users = session.query(User)
     for u in users:
-        if datetime.datetime.utcnow() - u.last_answer_time > datetime.timedelta(minutes=5):
-            if ((u not in users_reminders) or (
-                    datetime.datetime.utcnow() - users_reminders[u] > datetime.timedelta(minutes=3))):
-                users_reminders[u] = datetime.datetime.utcnow()
-                viber.send_messages(u.viber_id, [TextMessage(text="Время повторить слова", keyboard=START_KEYBOARD,
-                                                             tracking_data='tracking_data')])
+        if datetime.datetime.utcnow() >= u.time_reminder:
+            viber.send_messages(u.viber_id, [TextMessage(text="Время повторить слова", keyboard=START_KEYBOARD,
+                                                         tracking_data='tracking_data')])
 
 
 sched.start()

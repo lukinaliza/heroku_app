@@ -50,6 +50,7 @@ class User(Base):
     correct_answers_session = Column(Integer, nullable=False, default=0)
     questionCount_session = Column(Integer, nullable=False, default=0)
     last_answer_time = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+    time_reminder = Column(DateTime)
 
     words = relationship('Learning', back_populates='user')
     curword = relationship('Word', back_populates = 'var')
@@ -217,6 +218,8 @@ def incoming():
             if text == "Start":
                 nextAnswer = True
                 stat = getStat(viber_request.sender.id)
+                user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                session.commit()
                 viber.send_messages(viber_request.sender.id, [TextMessage(text=stat)])
                 portion_words = get_four_words_for_user(user.id)
                 # заполнение клавиатуры
@@ -233,6 +236,8 @@ def incoming():
                 # заполнение клавиатуры
                 makeQuestion(viber_request.sender.id, portion_words)
             elif text == "Dismiss":
+                user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                session.commit()
                 viber.send_messages(viber_request.sender.id, [
                     TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"), KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD) ])
             else:
