@@ -24,7 +24,7 @@ bot_configuration = BotConfiguration(
 viber = Api(bot_configuration)
 app = Flask(__name__)
 
-engine = create_engine('postgres://brfakkbdjwxrmj:21a01cf8274bcda5a8a71e13df236f11c03a3b79bab037633975e5f60de133c0@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/d81st56c4nudcs', echo = False)
+engine = create_engine('postgres://gffjdwwnzugdwv:0aedb1157f72ccb70518230b7c55ce7d40330fffa84398a9dcc41120773d41c4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/dv8h0sblah845', echo = False)
 Base = declarative_base()
 
 class Word(Base):
@@ -61,7 +61,7 @@ class Learning(Base):
     __tablename__ = 'learning'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    word = Column(String, nullable=False)
+    word = Column(Integer, nullable=False)
     right_answers = Column(Integer, nullable=False, default=0)
     last_time_answer_word = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
