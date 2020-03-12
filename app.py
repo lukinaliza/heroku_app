@@ -1,6 +1,6 @@
 from flask import Flask, request, Response
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, scoped_session
 
 from settings import TOKEN, WEBHOOK
 from settings import HELLO_MESSAGE
@@ -71,6 +71,7 @@ class Learning(Base):
         return f'{self.id}: {self.user_id} [{self.word} / {self.right_answers}] {self.last_time_answer_word}'
 
 Session = sessionmaker(engine)
+session = scoped_session(Session)
 
 
 def initWords():
@@ -268,7 +269,7 @@ def incoming():
                     makeQuestion(viber_request.sender.id, portion_words)
                     first = False
                     nextAnswer = False
-    session.close()
+
     return Response(status=200)
 
 if __name__ == '__main__':
