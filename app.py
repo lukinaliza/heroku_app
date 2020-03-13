@@ -25,6 +25,7 @@ viber = Api(bot_configuration)
 app = Flask(__name__)
 
 engine = create_engine('postgres://gffjdwwnzugdwv:0aedb1157f72ccb70518230b7c55ce7d40330fffa84398a9dcc41120773d41c4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/dv8h0sblah845', echo = False)
+# engine = create_engine('sqlite:///test.db', echo = False)
 Base = declarative_base()
 
 class Word(Base):
@@ -71,8 +72,6 @@ class Learning(Base):
         return f'{self.id}: {self.user_id} [{self.word} / {self.right_answers}] {self.last_time_answer_word}'
 
 Session = sessionmaker(engine)
-session = Session
-
 
 def initWords():
     session = Session()
@@ -84,7 +83,6 @@ def initWords():
             new_word = Word(word=word['word'], translation=word['translation'], examples = "".join(word['examples']))
             session.add(new_word)
     session.commit()
-    session.close()
 
 
 def get_four_words_for_user(user_id):
@@ -97,7 +95,6 @@ def get_four_words_for_user(user_id):
         check = session.query(Learning).filter(Learning.user_id == user_id).filter(Learning.word == word.id).first()
         if ((check == None or check.right_answers < 20) and word not in list):
             list.append(word)
-    session.close()
     return list
 
 def makeQuestion(viber_request_sender_id, portion_words):
@@ -106,7 +103,6 @@ def makeQuestion(viber_request_sender_id, portion_words):
     user = session.query(User).filter(User.viber_id == viber_request_sender_id).first()
     curWord = portion_words[0]
     user.currentword_id = curWord.id
-    session.commit()
     user.last_answer_time = datetime.datetime.utcnow()
     session.commit()
     whichWordMessage = f'Как переводится слово {curWord.word}?'
@@ -119,7 +115,6 @@ def makeQuestion(viber_request_sender_id, portion_words):
     viber.send_messages(viber_request_sender_id, [
         TextMessage(text=whichWordMessage), messageKeyboard
     ])
-    session.close()
 
 def getStat(viber_id):
     session = Session()
@@ -130,13 +125,11 @@ def getStat(viber_id):
     statistics += "Количество выученных слов: " + str(wds_learnt) + "\n"
     statistics += "Количество слов на изучении: " + str(words_learning) + "\n"
     statistics += "Последнее посещение: " + str(user.last_answer_time).replace('-', '.')[:19]
-    session.close()
     return statistics
 
 def showExample(viber_id):
     session = Session()
     val = (session.query(Word).join(User).filter(User.viber_id == viber_id)).first().examples
-    session.close()
     return val
 
 def checkAnswer(viber_id, text):
@@ -152,7 +145,6 @@ def checkAnswer(viber_id, text):
         # user = session.query(User).filter(User.viber_id == viber_request.sender.id).first()
         if (str != None):
             str.last_time_answer_word = datetime.datetime.utcnow()
-            session.commit()
             str.right_answers += 1
             session.commit()
         else:
@@ -164,11 +156,9 @@ def checkAnswer(viber_id, text):
     else:
         viber.send_messages(viber_id, [TextMessage(text=f"Неверно!")])
     user.questionCount_session += 1
-    session.commit()
     # обновление последнего времени ответа
     user.last_answer_time = datetime.datetime.utcnow()
     session.commit()
-    session.close()
 
 def checkEndSession(viber_id):
     session = Session()
@@ -177,11 +167,9 @@ def checkEndSession(viber_id):
         final = TextMessage(text=f"Количество правильных ответов: {user.correct_answers_session} из {SESSION_WORDS}")
         viber.send_messages(viber_id, [final])
         user.correct_answers_session = 0
-        session.commit()
         user.questionCount_session = 0
         session.commit()
         return True
-    session.close()
     return False
 
 
@@ -192,7 +180,6 @@ def hello():
     return f"hello {count}"
 
 portion_words = []
-first = True
 init = False
 SESSION_WORDS = 5
 TIME_INTERVAL = 30
@@ -206,12 +193,9 @@ def incoming():
     nextAnswer=False
     global portion_words
     global user
-    global first
-    global session
     viber_request = viber.parse_request(request.get_data())
 
     if isinstance(viber_request, ViberConversationStartedRequest):
-        print(viber_request.user)
         session = Session()
         if (session.query(User).filter(User.viber_id == viber_request.user.id).first() == None):
             user_0 = User(full_name=viber_request.user.name, viber_id=viber_request.user.id)
@@ -225,12 +209,10 @@ def incoming():
         message = viber_request.message
         session = Session()
         user = session.query(User).filter(User.viber_id == viber_request.sender.id).first()
-        # print(user)
         if isinstance(message, TextMessage):
             text = message.text
             print(text)
             if text == "Start":
-                nextAnswer = True
                 stat = getStat(viber_request.sender.id)
                 user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
                 session.commit()
@@ -238,15 +220,11 @@ def incoming():
                 portion_words = get_four_words_for_user(user.id)
                 # заполнение клавиатуры
                 makeQuestion(viber_request.sender.id, portion_words)
-                first = False
-                nextAnswer = False
             elif text == "showExample":
                 print("!!!!!!!!")
                 resp = showExample(viber_request.sender.id)
                 viber.send_messages(viber_request.sender.id, [
-                    TextMessage(text=resp)
-                ])
-                nextAnswer = False
+                    TextMessage(text=resp)])
                 # заполнение клавиатуры
                 makeQuestion(viber_request.sender.id, portion_words)
             elif text == "Dismiss":
@@ -256,22 +234,15 @@ def incoming():
                     TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"), KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD) ])
             else:
                 # проверка на правильность ответа
-                if (first == False):
-                    checkAnswer(viber_request.sender.id, text)
-                    nextAnswer = True
-                    if (checkEndSession(viber_request.sender.id)):
-                        nextAnswer = False
-                        first = True
-                        willContinue = TextMessage(text=f"Сыграем ещё раз?")
-                        messageKeyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD)
-                        viber.send_messages(viber_request.sender.id, [willContinue, messageKeyboard])
-
-                if nextAnswer == True:
+                checkAnswer(viber_request.sender.id, text)
+                if (checkEndSession(viber_request.sender.id)):
+                    willContinue = TextMessage(text=f"Сыграем ещё раз?")
+                    messageKeyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD)
+                    viber.send_messages(viber_request.sender.id, [willContinue, messageKeyboard])
+                else:
                     portion_words = get_four_words_for_user(user.id)
                     # заполнение клавиатуры
                     makeQuestion(viber_request.sender.id, portion_words)
-                    first = False
-                    nextAnswer = False
 
     return Response(status=200)
 
