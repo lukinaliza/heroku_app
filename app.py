@@ -172,7 +172,7 @@ def checkEndSession(viber_id):
         return True
     return False
 
-
+count = 0
 @app.route("/")
 def hello():
     global count
