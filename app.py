@@ -1,6 +1,7 @@
 from flask import Flask, request, Response
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, scoped_session
+from sqlalchemy.pool import NullPool
 
 from settings import TOKEN, WEBHOOK
 from settings import HELLO_MESSAGE
@@ -24,7 +25,7 @@ bot_configuration = BotConfiguration(
 viber = Api(bot_configuration)
 app = Flask(__name__)
 
-
+engine = create_engine('postgres://gffjdwwnzugdwv:0aedb1157f72ccb70518230b7c55ce7d40330fffa84398a9dcc41120773d41c4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/dv8h0sblah845', poolclass=NullPool, echo = False)
 # engine = create_engine('sqlite:///test.db', echo = False)
 Base = declarative_base()
 class Word(Base):
@@ -82,6 +83,7 @@ def initWords():
             new_word = Word(word=word['word'], translation=word['translation'], examples = "".join(word['examples']))
             session.add(new_word)
     session.commit()
+    session.close()
 
 
 def get_four_words_for_user(user_id):
@@ -94,6 +96,7 @@ def get_four_words_for_user(user_id):
         check = session.query(Learning).filter(Learning.user_id == user_id).filter(Learning.word == word.id).first()
         if ((check == None or check.right_answers < 20) and word not in list):
             list.append(word)
+    session.close()
     return list
 
 def makeQuestion(viber_request_sender_id, portion_words):
@@ -104,6 +107,7 @@ def makeQuestion(viber_request_sender_id, portion_words):
     user.currentword_id = curWord.id
     user.last_answer_time = datetime.datetime.utcnow()
     session.commit()
+    session.close()
     whichWordMessage = f'Как переводится слово {curWord.word}?'
     temp = copy.copy(portion_words)
     random.shuffle(temp)
@@ -124,11 +128,13 @@ def getStat(viber_id):
     statistics += "Количество выученных слов: " + str(wds_learnt) + "\n"
     statistics += "Количество слов на изучении: " + str(words_learning) + "\n"
     statistics += "Последнее посещение: " + str(user.last_answer_time).replace('-', '.')[:19]
+    session.close()
     return statistics
 
 def showExample(viber_id):
     session = Session()
     val = (session.query(Word).join(User).filter(User.viber_id == viber_id)).first().examples
+    session.close()
     return val
 
 def checkAnswer(viber_id, text):
@@ -158,6 +164,7 @@ def checkAnswer(viber_id, text):
     # обновление последнего времени ответа
     user.last_answer_time = datetime.datetime.utcnow()
     session.commit()
+    session.close()
 
 def checkEndSession(viber_id):
     session = Session()
@@ -168,7 +175,9 @@ def checkEndSession(viber_id):
         user.correct_answers_session = 0
         user.questionCount_session = 0
         session.commit()
+        session.close()
         return True
+    session.close()
     return False
 
 count = 0
@@ -178,7 +187,7 @@ def hello():
     count += 1
     return f"hello {count}"
 
-engine = create_engine('postgres://gffjdwwnzugdwv:0aedb1157f72ccb70518230b7c55ce7d40330fffa84398a9dcc41120773d41c4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/dv8h0sblah845', echo = False)
+
 portion_words = []
 init = False
 SESSION_WORDS = 5
@@ -241,7 +250,7 @@ def incoming():
                     portion_words = get_four_words_for_user(user.id)
                     # заполнение клавиатуры
                     makeQuestion(viber_request.sender.id, portion_words)
-    engine.dispose()
+        session.close()
     return Response(status=200)
 
 if __name__ == '__main__':
