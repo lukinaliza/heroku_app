@@ -193,7 +193,7 @@ portion_words = []
 first = True
 init = False
 SESSION_WORDS = 5
-TIME_INTERVAL = 20
+TIME_INTERVAL = 30
 @app.route('/incoming', methods = ['POST'])
 def incoming():
     Base.metadata.create_all(engine)
