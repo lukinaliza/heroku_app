@@ -140,8 +140,10 @@ def showExample(viber_id):
     return val
 
 def checkAnswer(viber_id, text):
+    print('checking answer')
     session = Session()
     user = session.query(User).filter(User.viber_id == viber_id).first()
+    print('user was found')
     if text == (session.query(Word).join(User).filter(Word.id == user.currentword_id)).first().translation:
         print('finding')
         # обновление слова в таблице learning
