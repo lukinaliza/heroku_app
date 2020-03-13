@@ -21,7 +21,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job('interval', minutes=10)
+@sched.scheduled_job('interval', minutes=15)
 def timed_job():
     session = Session()
     users = session.query(User)
