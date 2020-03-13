@@ -191,7 +191,7 @@ def hello():
 portion_words = []
 init = False
 SESSION_WORDS = 5
-TIME_INTERVAL = 30
+TIME_INTERVAL = 5
 @app.route('/incoming', methods = ['POST'])
 def incoming():
     Base.metadata.create_all(engine)
