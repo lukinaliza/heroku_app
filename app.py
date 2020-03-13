@@ -24,10 +24,9 @@ bot_configuration = BotConfiguration(
 viber = Api(bot_configuration)
 app = Flask(__name__)
 
-engine = create_engine('postgres://gffjdwwnzugdwv:0aedb1157f72ccb70518230b7c55ce7d40330fffa84398a9dcc41120773d41c4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/dv8h0sblah845', echo = False)
+
 # engine = create_engine('sqlite:///test.db', echo = False)
 Base = declarative_base()
-
 class Word(Base):
     __tablename__ = 'words'
     id = Column(Integer, primary_key=True)
@@ -179,6 +178,7 @@ def hello():
     count += 1
     return f"hello {count}"
 
+engine = create_engine('postgres://gffjdwwnzugdwv:0aedb1157f72ccb70518230b7c55ce7d40330fffa84398a9dcc41120773d41c4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/dv8h0sblah845', echo = False)
 portion_words = []
 init = False
 SESSION_WORDS = 5
@@ -190,9 +190,7 @@ def incoming():
     if (init == False):
         initWords()
         init = True
-    nextAnswer=False
     global portion_words
-    global user
     viber_request = viber.parse_request(request.get_data())
 
     if isinstance(viber_request, ViberConversationStartedRequest):
@@ -243,7 +241,7 @@ def incoming():
                     portion_words = get_four_words_for_user(user.id)
                     # заполнение клавиатуры
                     makeQuestion(viber_request.sender.id, portion_words)
-
+    engine.dispose()
     return Response(status=200)
 
 if __name__ == '__main__':
