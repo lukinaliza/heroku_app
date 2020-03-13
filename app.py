@@ -71,7 +71,7 @@ class Learning(Base):
         return f'{self.id}: {self.user_id} [{self.word} / {self.right_answers}] {self.last_time_answer_word}'
 
 Session = sessionmaker(engine)
-session = scoped_session(Session)
+session = Session
 
 
 def initWords():
@@ -205,6 +205,7 @@ def incoming():
     global portion_words
     global user
     global first
+    global session
     viber_request = viber.parse_request(request.get_data())
 
     if isinstance(viber_request, ViberConversationStartedRequest):
