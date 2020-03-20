@@ -1,4 +1,4 @@
-TOKEN = "4b174377a427d294-7f4611c4c2ec7fcb-6e508f5b5b241329"
+TOKEN = "4b2e878b11a7dcf6-d0e5e1700968f6bc-5d1a4fa7e8098131"
 #URL = "https://englishbotpro.herokuapp.com/"
 # URL = "https://678103ac.ngrok.io"
 # URL = "https://endlishbotpro.pythonanywhere.com/"
