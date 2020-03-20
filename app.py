@@ -18,14 +18,14 @@ import datetime
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
 
 bot_configuration = BotConfiguration(
-	name='EnglishBotPro',
+	name='Bot4',
 	avatar='http://viber.com/avatar.jpg',
 	auth_token=TOKEN
 )
 viber = Api(bot_configuration)
 app = Flask(__name__)
 
-engine = create_engine('postgres://gffjdwwnzugdwv:0aedb1157f72ccb70518230b7c55ce7d40330fffa84398a9dcc41120773d41c4@ec2-46-137-84-140.eu-west-1.compute.amazonaws.com:5432/dv8h0sblah845', poolclass=NullPool, echo = False)
+engine = create_engine('postgres://uwtwamukjlaagw:7ccfda56ce5eb03e7d17e5988645061301a9d37da9e5e935e8e8d41c1bad0021@ec2-54-75-246-118.eu-west-1.compute.amazonaws.com:5432/d2jn4lvglieepl', poolclass=NullPool, echo = False)
 # engine = create_engine('sqlite:///test.db', echo = False)
 Base = declarative_base()
 class Word(Base):
@@ -99,7 +99,7 @@ def get_four_words_for_user(user_id):
     session.close()
     return list
 
-def makeQuestion(viber_request_sender_id, portion_words):
+def send_question(viber_request_sender_id, portion_words):
     session = Session()
     # заполнение клавиатуры
     user = session.query(User).filter(User.viber_id == viber_request_sender_id).first()
@@ -131,23 +131,19 @@ def getStat(viber_id):
     session.close()
     return statistics
 
-def showExample(viber_id):
+def send_example(viber_id):
     session = Session()
     val = (session.query(Word).join(User).filter(User.viber_id == viber_id)).first().examples
     session.close()
     return val
 
-def checkAnswer(viber_id, text):
-    print('checking answer')
+def correct_answer(viber_id, text):
     session = Session()
     user = session.query(User).filter(User.viber_id == viber_id).first()
-    print('user was found')
     if text == (session.query(Word).join(User).filter(Word.id == user.currentword_id)).first().translation:
-        print('finding')
         # обновление слова в таблице learning
         str = session.query(Learning).filter(Learning.user_id == user.id) \
             .filter(Learning.word == user.currentword_id).first()
-        # user = session.query(User).filter(User.viber_id == viber_request.sender.id).first()
         if (str != None):
             str.last_time_answer_word = datetime.datetime.utcnow()
             str.right_answers += 1
@@ -157,9 +153,9 @@ def checkAnswer(viber_id, text):
             session.commit()
         user.correct_answers_session += 1
         session.commit()
-        viber.send_messages(viber_id, [TextMessage(text=f"Верно!")])
+        viber.send_messages(viber_id, [TextMessage(text=f"Верно! :)")])
     else:
-        viber.send_messages(viber_id, [TextMessage(text=f"Неверно!")])
+        viber.send_messages(viber_id, [TextMessage(text=f"Неверно! :(")])
     user.questionCount_session += 1
     # обновление последнего времени ответа
     user.last_answer_time = datetime.datetime.utcnow()
@@ -226,22 +222,21 @@ def incoming():
                 viber.send_messages(viber_request.sender.id, [TextMessage(text=stat)])
                 portion_words = get_four_words_for_user(user.id)
                 # заполнение клавиатуры
-                makeQuestion(viber_request.sender.id, portion_words)
+                send_question(viber_request.sender.id, portion_words)
             elif text == "showExample":
-                print("!!!!!!!!")
-                resp = showExample(viber_request.sender.id)
+                resp = send_example(viber_request.sender.id)
                 viber.send_messages(viber_request.sender.id, [
                     TextMessage(text=resp)])
                 # заполнение клавиатуры
-                makeQuestion(viber_request.sender.id, portion_words)
-            elif text == "Dismiss":
+                send_question(viber_request.sender.id, portion_words)
+            elif text == "Later":
                 user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
                 session.commit()
                 viber.send_messages(viber_request.sender.id, [
                     TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"), KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD) ])
             else:
                 # проверка на правильность ответа
-                checkAnswer(viber_request.sender.id, text)
+                correct_answer(viber_request.sender.id, text)
                 if (checkEndSession(viber_request.sender.id)):
                     willContinue = TextMessage(text=f"Сыграем ещё раз?")
                     messageKeyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD)
@@ -249,7 +244,7 @@ def incoming():
                 else:
                     portion_words = get_four_words_for_user(user.id)
                     # заполнение клавиатуры
-                    makeQuestion(viber_request.sender.id, portion_words)
+                    send_question(viber_request.sender.id, portion_words)
         session.close()
     return Response(status=200)
 

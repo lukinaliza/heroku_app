@@ -1,9 +1,10 @@
 TOKEN = "4b174377a427d294-7f4611c4c2ec7fcb-6e508f5b5b241329"
-URL = "https://englishbotpro.herokuapp.com/"
+#URL = "https://englishbotpro.herokuapp.com/"
+# URL = "https://678103ac.ngrok.io"
 # URL = "https://endlishbotpro.pythonanywhere.com/"
 WEBHOOK = URL + '/incoming'
-HELLO_MESSAGE = "Привет! Я Бот из Англии в шестом поколении. Я помогу тебе выучить английский язык. "\
-               "Для начала введи Start или нажми на кнопку внизу"
+HELLO_MESSAGE = "Привет. Этот бот предназначен для заучивания иностранных слов\n" \
+             "Для начала нажмите на кнопку или напишите 'Старт'"
 
 START_KEYBOARD = {
 "Type": "keyboard",
@@ -18,7 +19,7 @@ START_KEYBOARD = {
 	"ActionType": "reply",
 	"ActionBody": "Start",
 	"ReplyType": "message",
-	"Text": "Давай начнём!"
+	"Text": "Старт"
 	}
     ]
 }
@@ -36,7 +37,7 @@ WAIT_KEYBOARD = {
 	"ActionType": "reply",
 	"ActionBody": "Start",
 	"ReplyType": "message",
-	"Text": "Давай начнём!"
+	"Text": "Старт"
 	},
     {"Columns": 6,
     "Rows": 1,
@@ -45,7 +46,7 @@ WAIT_KEYBOARD = {
     "BgMediaType": "picture",
     "BgLoop": True,
     "ActionType": "reply",
-    "ActionBody": "Dismiss",
+    "ActionBody": "Later",
     "ReplyType": "message",
     "Text": "Чуть позже"
     }
@@ -113,7 +114,7 @@ SAMPLE_KEYBOARD = {
         "ActionType": "reply",
         "ActionBody": "showExample",
         "ReplyType": "message",
-        "Text": "Посмотреть пример использования"
+        "Text": "Пример использования"
     }
     ]
 }
