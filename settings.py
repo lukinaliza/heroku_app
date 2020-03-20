@@ -1,7 +1,5 @@
 TOKEN = "4b2e878b11a7dcf6-d0e5e1700968f6bc-5d1a4fa7e8098131"
-#URL = "https://englishbotpro.herokuapp.com/"
-# URL = "https://678103ac.ngrok.io"
-# URL = "https://endlishbotpro.pythonanywhere.com/"
+URL = "https://git.heroku.com/viberbotforen.git"
 WEBHOOK = URL + '/incoming'
 HELLO_MESSAGE = "Привет. Этот бот предназначен для заучивания иностранных слов\n" \
              "Для начала нажмите на кнопку или напишите 'Старт'"
