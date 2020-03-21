@@ -183,7 +183,7 @@ def hello():
     count += 1
     return f"hello {count}"
 
-
+mes_tokens = set()
 portion_words = []
 init = False
 SESSION_WORDS = 5
@@ -191,7 +191,6 @@ TIME_INTERVAL = 5
 @app.route('/incoming', methods = ['POST'])
 def incoming():
     Base.metadata.create_all(engine)
-    mes_tokens = set()
     global init
     if (init == False):
         initWords()
