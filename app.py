@@ -209,49 +209,49 @@ def incoming():
             TextMessage(text=HELLO_MESSAGE, keyboard=START_KEYBOARD, tracking_data='tracking_data')
         ])
 
-    elif isinstance(viber_request, ViberMessageRequest):
+     elif isinstance(viber_request, ViberMessageRequest):
         if viber_request.message_token not in mes_tokens:
-		message = viber_request.message
-		mes_token=viber_request.message_token
-                mes_tokens.add(mes_token)
-		session = Session()
-		user = session.query(User).filter(User.viber_id == viber_request.sender.id).first()
-		if isinstance(message, TextMessage):
-		    text = message.text
-		    print(text)
-		    if text == "Start":
-			stat = getStat(viber_request.sender.id)
-			user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
-			session.commit()
-			viber.send_messages(viber_request.sender.id, [TextMessage(text=stat)])
-			portion_words = get_four_words_for_user(user.id)
-			# заполнение клавиатуры
-			send_question(viber_request.sender.id, portion_words)
-		    elif text == "showExample":
-			resp = send_example(viber_request.sender.id)
-			viber.send_messages(viber_request.sender.id, [
-			    TextMessage(text=resp)])
-			# заполнение клавиатуры
-			send_question(viber_request.sender.id, portion_words)
-		    elif text == "Later":
-			user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
-			session.commit()
-			viber.send_messages(viber_request.sender.id, [
-			    TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"), KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD) ])
-		    else:
-			# проверка на правильность ответа
-			correct_answer(viber_request.sender.id, text)
-			if (checkEndSession(viber_request.sender.id)):
-			    willContinue = TextMessage(text=f"Сыграем ещё раз?")
-			    messageKeyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD)
-			    viber.send_messages(viber_request.sender.id, [willContinue, messageKeyboard])
-			else:
-			    portion_words = get_four_words_for_user(user.id)
-			    # заполнение клавиатуры
-			    send_question(viber_request.sender.id, portion_words)
-		session.close()
-	else:
-		pass
+            mes_token = viber_request.message_token
+            mes_tokens.add(mes_token)
+            message = viber_request.message
+            session = Session()
+            user = session.query(User).filter(User.viber_id == viber_request.sender.id).first()
+            if isinstance(message, TextMessage):
+                text = message.text
+                print(text)
+                if text == "Start":
+                    stat = getStat(viber_request.sender.id)
+                    user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
+                    session.commit()
+                    viber.send_messages(viber_request.sender.id, [TextMessage(text=stat)])
+                    portion_words = get_four_words_for_user(user.id)
+                    # заполнение клавиатуры
+                    send_question(viber_request.sender.id, portion_words)
+                elif text == "showExample":
+                    resp = send_example(viber_request.sender.id)
+                    viber.send_messages(viber_request.sender.id, [
+                        TextMessage(text=resp)])
+                    # заполнение клавиатуры
+                    send_question(viber_request.sender.id, portion_words)
+                elif text == "Later":
+                    user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
+                    session.commit()
+                    viber.send_messages(viber_request.sender.id, [
+                        TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"), KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD) ])
+                else:
+                    # проверка на правильность ответа
+                    correct_answer(viber_request.sender.id, text)
+                    if (checkEndSession(viber_request.sender.id)):
+                        willContinue = TextMessage(text=f"Сыграем ещё раз?")
+                        messageKeyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD)
+                        viber.send_messages(viber_request.sender.id, [willContinue, messageKeyboard])
+                    else:
+                        portion_words = get_four_words_for_user(user.id)
+                        # заполнение клавиатуры
+                        send_question(viber_request.sender.id, portion_words)
+            session.close()
+        else:
+            pass
     return Response(status=200)
 
 if __name__ == '__main__':
