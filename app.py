@@ -211,8 +211,8 @@ def incoming():
 
     elif isinstance(viber_request, ViberMessageRequest):
         if viber_request.message_token not in mes_tokens:
-		mes_token=viber_request.message_token
 		message = viber_request.message
+		mes_token=viber_request.message_token
                 mes_tokens.add(mes_token)
 		session = Session()
 		user = session.query(User).filter(User.viber_id == viber_request.sender.id).first()
