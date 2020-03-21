@@ -191,12 +191,12 @@ TIME_INTERVAL = 5
 @app.route('/incoming', methods = ['POST'])
 def incoming():
     Base.metadata.create_all(engine)
+    mes_tokens = set()
     global init
     if (init == False):
         initWords()
         init = True
     global portion_words
-    mes_tokens=set()
     viber_request = viber.parse_request(request.get_data())
 
     if isinstance(viber_request, ViberConversationStartedRequest):
@@ -209,7 +209,7 @@ def incoming():
             TextMessage(text=HELLO_MESSAGE, keyboard=START_KEYBOARD, tracking_data='tracking_data')
         ])
 
-     elif isinstance(viber_request, ViberMessageRequest):
+    elif isinstance(viber_request, ViberMessageRequest):
         if viber_request.message_token not in mes_tokens:
             mes_token = viber_request.message_token
             mes_tokens.add(mes_token)
@@ -237,7 +237,8 @@ def incoming():
                     user.time_reminder = datetime.datetime.utcnow() + datetime.timedelta(minutes=TIME_INTERVAL)
                     session.commit()
                     viber.send_messages(viber_request.sender.id, [
-                        TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"), KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD) ])
+                        TextMessage(text=f"Жду тебя! Нажми на Start как будешь готов"),
+                        KeyboardMessage(tracking_data='tracking_data', keyboard=START_KEYBOARD)])
                 else:
                     # проверка на правильность ответа
                     correct_answer(viber_request.sender.id, text)
@@ -252,7 +253,8 @@ def incoming():
             session.close()
         else:
             pass
-     return Response(status=200)
+    return Response(status=200)
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port = 82)
